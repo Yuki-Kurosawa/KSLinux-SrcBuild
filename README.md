@@ -1,17 +1,17 @@
 # KSLinux
 
 A Linux Distribution Based on GNU/Linux with Following extra packages:<br/>
-Kurosawa Package Manager (KPM) [conflicts: dpkg]<br/>
+dpkg (Debian Package Manager)<br/>
 Kuroasawa Package Toolset (KPT) [conflicts: apt]<br/>
 Supported Architecture: i386(i686) amd64(x86-64) armhf aarch64(arm64)
 
-KPM
+dpkg
 
 ---------
-Install Packages: kpm -i xxx.kpm<br/>
-Remove Packages: kpm -r xxx<br/>
-Purge Packages: kpm -p xxx<br/>
-Build Packages via kpm-pkg: kpm-pkg -b /opt/xxx xxx.kpm<br/>
+Install Packages: dpkg -i xxx.deb<br/>
+Remove Packages: dpkg -r xxx<br/>
+Purge Packages: dpkg -P xxx<br/>
+Build Packages via dpkg-deb: dpkg-deb --build /opt/xxx xxx.deb<br/>
 <br/>
 
 KPT
@@ -20,8 +20,8 @@ KPT
 Update Package List: kpt update<br/>
 Install Packages: kpt install xxx<br/>
 Remove Packages: kpt remove xxx<br/>
-Purge Packages: kpm purge xxx<br/>
-Update Packages: kpm upgrade xxx<br/>
+Purge Packages: kpt purge xxx<br/>
+Update Packages: kpt upgrade xxx<br/>
 
 Note for conflicts
 

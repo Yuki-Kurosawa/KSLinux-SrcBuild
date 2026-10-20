@@ -416,7 +416,7 @@ CONF_OS(){
 				return 0
 			else
 				echo "KSLinux can only build on deb-based systems,"
-				echo "kpm-based systems or yum-dnf-based systems,"
+				echo "dpkg-based systems or yum-dnf-based systems,"
 				echo "you can run following command to skip this check:"
 				echo "export UNSUPPORTED_SYSTEM=1"
 				exit 1
@@ -426,14 +426,10 @@ CONF_OS(){
 	return 0
 }
 
-CONF_KPM(){
+CONF_DPKG(){
 	echo -n 'Checking Package Manager ... '
-	KPM="/usr/bin/kpm"
 	DPKG="/usr/bin/dpkg"
-	if [ -f $KPM ];then
-		echo $KPM
-		return 0
-	elif [ -f $DPKG ];then
+	if [ -f $DPKG ];then
 		echo $DPKG
 		return 0
 	else
@@ -441,7 +437,7 @@ CONF_KPM(){
 		if [ $NO_PACKAGE_MANAGER ] && [ $NO_PACKAGE_MANAGER -eq 1 ];then
 				return 0
 		else
-			echo "Please install Package Manager (dpkg) or (kpm) manually"
+			echo "Please install Package Manager (dpkg) manually"
 			echo "or run following command to skip this check:"
 			echo "export NO_PACKAGE_MANAGER=1"
 			exit 1
@@ -626,7 +622,7 @@ CONF_WORK(){
 	CONF_SHELL_BASH
 	CONF_SH_BASH
 	CONF_DIR
-	CONF_KPM
+	CONF_DPKG
 	CONF_YACC
 	CONF_YACC_BISON
 	CONF_AWK

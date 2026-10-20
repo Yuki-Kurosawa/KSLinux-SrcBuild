@@ -51,17 +51,17 @@ permission: permission.in
 	@rm permission.out
 	@./fixperm.sh
 
-kpm.sh: kpm-in.sh
-	@cat envsetup.sh > kpm.sh
-	@sed "11,12d" kpm.sh > kpm.o
-	@cat kpm.o > kpm.sh
-	@rm kpm.o
-	@cat kpm-in.sh >> kpm.sh
-	@chmod a+x kpm.sh
+dpkg.sh: dpkg-in.sh
+	@cat envsetup.sh > dpkg.sh
+	@sed "11,12d" dpkg.sh > dpkg.o
+	@cat dpkg.o > dpkg.sh
+	@rm dpkg.o
+	@cat dpkg-in.sh >> dpkg.sh
+	@chmod a+x dpkg.sh
 
-kpm: kpm.sh
-	@./kpm.sh
-	@touch kpm
+dpkg: dpkg.sh
+	@./dpkg.sh
+	@touch dpkg
 
 prepare.sh: prepare-in.sh
 	@cat envsetup.sh > prepare.sh
@@ -77,7 +77,7 @@ prepare: prepare.sh
 
 clean: distclean
 	@rm -rf makefile envsetup.sh build.1st build.2nd cross-gcc-stage1 cross-gcc-stage2 build.tmp \
-	tmp-system kpm.sh kpm fixperm.sh prepare.sh prepare
+	tmp-system dpkg.sh dpkg fixperm.sh prepare.sh prepare
 
 distclean:
 	@cat envsetup.sh > clean.sh
