@@ -16,14 +16,14 @@ build.1st: envsetup.sh build.1st.sh
 build.2nd: envsetup.sh build.2nd.sh
 	@cat envsetup.sh >build.2nd
 	@cat build.2nd.sh >>build.2nd
-	@sed "11,12d" build.2nd > build.2nd.so
+	@sed "11,13d" build.2nd > build.2nd.so
 	@mv build.2nd.so build.2nd
 	@chmod a+x build.2nd
 
 build.tmp: envsetup.sh build.tmp.sh
 	@cat envsetup.sh >build.tmp
 	@cat build.tmp.sh >>build.tmp
-	@sed "11,12d" build.tmp > build.tmp.so
+	@sed "11,13d" build.tmp > build.tmp.so
 	@mv build.tmp.so build.tmp
 	@chmod a+x build.tmp
 
@@ -43,7 +43,7 @@ permission: permission.in
 	@./autosrc permission.in permission.out
 	@chmod a+x permission.out
 	@cat envsetup.sh > fixperm.sh
-	@sed "11,12d" fixperm.sh > fixperm
+	@sed "11,13d" fixperm.sh > fixperm
 	@cat fixperm > fixperm.sh
 	@rm fixperm
 	@cat permission.out >> fixperm.sh
@@ -53,7 +53,7 @@ permission: permission.in
 
 dpkg.sh: dpkg-in.sh
 	@cat envsetup.sh > dpkg.sh
-	@sed "11,12d" dpkg.sh > dpkg.o
+	@sed "11,13d" dpkg.sh > dpkg.o
 	@cat dpkg.o > dpkg.sh
 	@rm dpkg.o
 	@cat dpkg-in.sh >> dpkg.sh
@@ -65,7 +65,7 @@ dpkg: dpkg.sh
 
 prepare.sh: prepare-in.sh
 	@cat envsetup.sh > prepare.sh
-	@sed "11,12d" prepare.sh > prepare.o
+	@sed "11,13d" prepare.sh > prepare.o
 	@cat prepare.o > prepare.sh
 	@rm prepare.o
 	@cat prepare-in.sh >> prepare.sh
@@ -81,7 +81,7 @@ clean: distclean
 
 distclean:
 	@cat envsetup.sh > clean.sh
-	@sed "11,12d" clean.sh > clean.o
+	@sed "11,13d" clean.sh > clean.o
 	@cat clean.o > clean.sh
 	@rm clean.o
 	@cat clean.in >> clean.sh

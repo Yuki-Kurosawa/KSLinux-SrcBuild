@@ -40,28 +40,30 @@ $MAKE check
 cd ..
 rm -rf $DEJAGNU_SRC
 
-# install Check
-cd $BUILDTMP
-tar xvf $SRCROOT/$CHECK_TAR
-cd $CHECK_SRC
-PKG_CONFIG= ./configure --prefix=$CROSS
-$MAKE $MFLAGS
-#$MAKE check
-$MAKE install
-cd ..
-rm -rf $CHECK_SRC
-
 # install Ncurse
 cd $BUILDTMP
 tar xvf $SRCROOT/$NCURSE_TAR
 cd $NCURSE_SRC
-sed -i s/mawk// configure
-./configure --prefix=$CROSS \
-            --with-shared   \
-            --without-debug \
-            --without-ada   \
-            --enable-widec  \
-            --enable-overwrite
+mkdir build
+pushd build
+  ../configure --prefix=$CROSS AWK=gawk
+  make -C include
+  make -C progs tic
+  install progs/tic $CROSS/bin
+popd
+
+./configure --prefix=$CROSS                \
+            --host=$LFS_TGT               \
+            --build=$(./config.guess)     \
+            --mandir=$CROSS/share/man     \
+            --with-manpage-format=normal  \
+            --with-shared                 \
+            --without-normal              \
+            --with-cxx-shared             \
+            --without-debug               \
+            --without-ada                \
+            --disable-stripping           \
+            AWK=gawk
 $MAKE $MFLAGS
 $MAKE install
 cd ..
@@ -71,7 +73,11 @@ rm -rf $NCURSE_SRC
 cd $BUILDTMP
 tar xvf $SRCROOT/$BASH_TAR
 cd $BASH_SRC
-./configure --prefix=$CROSS --without-bash-malloc
+./configure --prefix=$CROSS                \
+            --build=$(sh support/config.guess) \
+            --host=$LFS_TGT                \
+            --without-bash-malloc          \
+            --docdir=$CROSS/share/doc/bash-5.3
 $MAKE $MFLAGS
 $MAKE install
 ln -sv bash $CROSS/bin/sh
@@ -91,9 +97,16 @@ rm -rf $BZIP2_SRC
 cd $BUILDTMP
 tar xvf $SRCROOT/$COREUTILS_TAR
 cd $COREUTILS_SRC
-./configure --prefix=$CROSS --enable-install-program=hostname
+./configure --prefix=$CROSS                \
+            --host=$LFS_TGT                \
+            --build=$(build-aux/config.guess) \
+            --enable-install-program=hostname
 $MAKE $MFLAGS
 $MAKE install
+mv -v $CROSS/bin/chroot $CROSS/sbin
+mkdir -pv $CROSS/share/man/man8
+mv -v $CROSS/share/man/man1/chroot.1 $CROSS/share/man/man8/chroot.8
+sed -i 's/"1"/"8"/' $CROSS/share/man/man8/chroot.8
 cd ..
 rm -rf $COREUTILS_SRC
 
@@ -101,7 +114,7 @@ rm -rf $COREUTILS_SRC
 cd $BUILDTMP
 tar xvf $SRCROOT/$DIFFUTILS_TAR
 cd $DIFFUTILS_SRC
-./configure --prefix=$CROSS
+./configure --prefix=$CROSS --host=$LFS_TGT --build=$(./config.guess)
 $MAKE $MFLAGS
 $MAKE install
 cd ..
@@ -111,7 +124,7 @@ rm -rf $DIFFUTILS_SRC
 cd $BUILDTMP
 tar xvf $SRCROOT/$FILE_TAR
 cd $FILE_SRC
-./configure --prefix=$CROSS
+./configure --prefix=$CROSS --host=$LFS_TGT --build=$(./config.guess)
 $MAKE $MFLAGS
 $MAKE install
 cd ..
@@ -121,7 +134,7 @@ rm -rf $FILE_SRC
 cd $BUILDTMP
 tar xvf $SRCROOT/$FINDUTILS_TAR
 cd $FINDUTILS_SRC
-./configure --prefix=$CROSS
+./configure --prefix=$CROSS --host=$LFS_TGT --build=$(./config.guess)
 $MAKE $MFLAGS
 $MAKE install
 cd ..
@@ -131,7 +144,7 @@ rm -rf $FINDUTILS_SRC
 cd $BUILDTMP
 tar xvf $SRCROOT/$GAWK_TAR
 cd $GAWK_SRC
-./configure --prefix=$CROSS
+./configure --prefix=$CROSS --host=$LFS_TGT --build=$(./config.guess)
 $MAKE $MFLAGS
 $MAKE install
 cd ..
@@ -156,7 +169,7 @@ rm -rf $GETTEXT_SRC
 cd $BUILDTMP
 tar xvf $SRCROOT/$GREP_TAR
 cd $GREP_SRC
-./configure --prefix=$CROSS
+./configure --prefix=$CROSS --host=$LFS_TGT --build=$(./config.guess)
 $MAKE $MFLAGS
 $MAKE install
 cd ..
@@ -166,7 +179,7 @@ rm -rf $GREP_SRC
 cd $BUILDTMP
 tar xvf $SRCROOT/$GZIP_TAR
 cd $GZIP_SRC
-./configure --prefix=$CROSS
+./configure --prefix=$CROSS --host=$LFS_TGT --build=$(./config.guess)
 $MAKE $MFLAGS
 $MAKE install
 cd ..
@@ -176,7 +189,7 @@ rm -rf $GZIP_SRC
 cd $BUILDTMP
 tar xvf $SRCROOT/$M4_TAR
 cd $M4_SRC
-./configure --prefix=$CROSS
+./configure --prefix=$CROSS --host=$LFS_TGT --build=$(./config.guess)
 $MAKE $MFLAGS
 $MAKE install
 cd ..
@@ -186,7 +199,7 @@ rm -rf $M4_SRC
 cd $BUILDTMP
 tar xvf $SRCROOT/$MAKE_TAR
 cd $MAKE_SRC
-./configure --prefix=$CROSS --without-guile
+./configure --prefix=$CROSS --host=$LFS_TGT --build=$(./config.guess) --without-guile
 $MAKE $MFLAGS
 $MAKE install
 cd ..
@@ -196,7 +209,7 @@ rm -rf $MAKE_SRC
 cd $BUILDTMP
 tar xvf $SRCROOT/$PATCH_TAR
 cd $PATCH_SRC
-./configure --prefix=$CROSS
+./configure --prefix=$CROSS --host=$LFS_TGT --build=$(./config.guess)
 $MAKE $MFLAGS
 $MAKE install
 cd ..
@@ -209,8 +222,8 @@ cd $PERL_SRC
 sh Configure -des -Dprefix=$CROSS -Dlibs=-lm
 $MAKE $MFLAGS
 cp -v perl cpan/podlators/pod2man $CROSS/bin
-mkdir -pv $CROSS/lib/perl5/5.26.1
-cp -Rv lib/* $CROSS/lib/perl5/5.26.1
+mkdir -pv $CROSS/lib/perl5/5.44.0
+cp -Rv lib/* $CROSS/lib/perl5/5.44.0
 cd ..
 rm -rf $PERL_SRC
 
@@ -218,7 +231,7 @@ rm -rf $PERL_SRC
 cd $BUILDTMP
 tar xvf $SRCROOT/$SED_TAR
 cd $SED_SRC
-./configure --prefix=$CROSS
+./configure --prefix=$CROSS --host=$LFS_TGT --build=$(./config.guess)
 $MAKE $MFLAGS
 $MAKE install
 cd ..
@@ -228,7 +241,7 @@ rm -rf $SED_SRC
 cd $BUILDTMP
 tar xvf $SRCROOT/$TAR_TAR
 cd $TAR_SRC
-./configure --prefix=$CROSS
+./configure --prefix=$CROSS --host=$LFS_TGT --build=$(./config.guess)
 $MAKE $MFLAGS
 $MAKE install
 cd ..
@@ -262,12 +275,8 @@ rm -rf $UTIL_LINUX_SRC
 cd $BUILDTMP
 tar xvf $SRCROOT/$XZ_TAR
 cd $XZ_SRC
-./configure --prefix=$CROSS
+./configure --prefix=$CROSS --host=$LFS_TGT --build=$(./config.guess)
 $MAKE $MFLAGS
 $MAKE install
 cd ..
 rm -rf $XZ_SRC
-
-
-
-

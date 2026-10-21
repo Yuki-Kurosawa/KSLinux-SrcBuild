@@ -14,10 +14,12 @@ cd build
 
 ../configure --prefix=$CROSS            \
              --with-sysroot=$LFS        \
-             --with-lib-path=$CROSS/lib \
              --target=$LFS_TGT          \
              --disable-nls              \
-             --disable-werror
+             --enable-gprofng=no        \
+             --disable-werror           \
+             --enable-new-dtags         \
+             --enable-default-hash-style=gnu
 
 $MAKE $MFLAGS
 
@@ -35,18 +37,18 @@ tar xvf $SRCROOT/$GCC_TAR
 cd $GCC_SRC
 
 case "$UNAMEM" in
-		i386|i486|i586|i686|amd64|x86_64)
-      tar -xf $SRCROOT/$MPFR_TAR
-      mv -v $MPFR_SRC mpfr
-      tar -xf $SRCROOT/$GMP_TAR
-      mv -v $GMP_SRC gmp
-      tar -xf $SRCROOT/$MPC_TAR
-      mv -v $MPC_SRC mpc
-			;;
-		armv7l|armhf|armv8l|aarch64)
-      ./contrib/download_prerequisites
-			;;
-	esac
+    i386|i486|i586|i686|amd64|x86_64)
+  tar -xf $SRCROOT/$MPFR_TAR
+  mv -v $MPFR_SRC mpfr
+  tar -xf $SRCROOT/$GMP_TAR
+  mv -v $GMP_SRC gmp
+  tar -xf $SRCROOT/$MPC_TAR
+  mv -v $MPC_SRC mpc
+  ;;
+    armv7l|armhf|armv8l|aarch64)
+  ./contrib/download_prerequisites
+  ;;
+esac
 
 
 for file in \
@@ -67,43 +69,43 @@ case $(uname -m) in
   x86_64)
     sed -e '/m64=/s/lib64/lib/' \
         -i.orig gcc/config/i386/t-linux64
- ;;
+  ;;
   aarch64)
-	sed -e '/mabi.lp64=/s/lib64/lib/' \
+    sed -e '/mabi.lp64=/s/lib64/lib/' \
         -i.orig gcc/config/aarch64/t-aarch64-linux
- ;;
+  ;;
 esac
 
 mkdir -v build
-cd       build
+cd build
 
 ../configure                                       \
     --target=$LFS_TGT                              \
     --prefix=$CROSS                                \
-    --with-glibc-version=2.27                      \
+    --with-glibc-version=2.44                      \
     --with-sysroot=$LFS                            \
     --with-newlib                                  \
     --without-headers                              \
-    --with-local-prefix=$CROSS                     \
-    --with-native-system-header-dir=$CROSS/include \
+    --enable-default-pie                            \
+    --enable-default-ssp                           \
+    --disable-fixincludes                          \
     --disable-nls                                  \
     --disable-shared                               \
     --disable-multilib                             \
-    --disable-decimal-float                        \
     --disable-threads                              \
-    --disable-libatomic                            \
+    --disable-libatomic                             \
     --disable-libgomp                              \
     --disable-libquadmath                          \
     --disable-libssp                               \
     --disable-libvtv                               \
     --disable-libstdcxx                            \
-    --disable-libmudflap                           \
-    --disable-libmpx				   \
-    --enable-languages=c,c++ $GFLAGS
+    --enable-languages=c,c++
 
 $MAKE $MFLAGS
 $MAKE $MFLAGS install
+
+cat ../gcc/{limitx,glimits,limity}.h > \
+  $($LFS_TGT-gcc -print-file-name=include)/limits.h
+
 cd ../../
-rm -rf  $GCC_SRC
-
-
+rm -rf $GCC_SRC
